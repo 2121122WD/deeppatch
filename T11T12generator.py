@@ -1,4 +1,4 @@
-"""use index of T11 and T12 to generate them"""
+"""过读取噪声样本（T11）和干净样本（T12）的索引，从训练数据中提取对应的样本及其标签"""
 import numpy as np
 import pathlib
 
