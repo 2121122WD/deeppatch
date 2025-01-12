@@ -1,4 +1,4 @@
-"""run network on T1 and get the index of T11 and T12"""
+"""新增代码：在数据集上运行网络区别干净样本和干扰样本"""
 import torch
 import torch.backends.cudnn as cudnn
 import torchvision.transforms as transforms
@@ -11,56 +11,56 @@ import numpy as np
 import pathlib
 
 
-def filter(noise_name, net_name):
-    path = pathlib.Path(noise_name+net_name+'T11_index.npy')
-    if path.is_file():
+def filter_samples(noise_name, net_name):
+    output_path = pathlib.Path(f"{noise_name}{net_name}T11_index.npy")
+    if output_path.is_file():
+        print(f"Filtered data already exists for {noise_name} and {net_name}.")
         return
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    # Data
+    # 加载数据集
     transform_test = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
     ])
-
-    testset = GN(data_path='data/'+noise_name+'_train.npy', label_path='data/labels_train.npy',
-                 transform=transform_test)
+    testset = GN(data_path=f'data/{noise_name}_train.npy', label_path='data/labels_train.npy', transform=transform_test)
     testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False)
 
-    # Model
-    if net_name == 'vgg16':
-        net = VGG('VGG16')
-    elif net_name == 'densenet121':
-        net = DenseNet121()
-    elif net_name == 'resnet101':
-        net = ResNet101()
-    elif net_name == 'mobilenetv2':
-        net = MobileNetV2()
-    else:
-        print("In function 'filter', net_name doesn't exist.")
-        assert False
-    net = net.to(device)
+    # 初始网络
+    model_map = {
+        'vgg16': VGG('VGG16'),
+        'densenet121': DenseNet121(),
+        'resnet101': ResNet101(),
+        'mobilenetv2': MobileNetV2(),
+    }
+    if net_name not in model_map:
+        raise ValueError(f"Model {net_name} is not supported.")
+
+    net = model_map[net_name].to(device)
     if device == 'cuda':
         net = torch.nn.DataParallel(net)
         cudnn.benchmark = True
 
-    weight = torch.load('net_weight/' + net_name + '_ckpt.pth')
+    # 加载预训练权重
+    weight_path = f'net_weight/{net_name}_ckpt.pth'
+    weight = torch.load(weight_path)
     net.load_state_dict(weight['net'])
 
-    T11_index = []
-    T12_index = []
+    # 实现了对输入样本的分类（判断干净样本或噪声样本）
+    T11_index = [] # 保存预测错误样本的索引
+    T12_index = [] # 保存预测正确样本的索引
 
     net.eval()
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(testloader):
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = net(inputs)
-            _, predicted = outputs.max(1)
+            _, predicted = outputs.max(1) # 获取预测结果
             if predicted != targets:
-                T11_index.append(batch_idx)
+                T11_index.append(batch_idx) # 如果预测错误，加入 T11
             else:
-                T12_index.append(batch_idx)
+                T12_index.append(batch_idx) # 如果预测错误，加入 T12
 
     m = np.array(T11_index)
     np.save(noise_name+net_name+'T11_index.npy', m)
