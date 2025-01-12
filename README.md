@@ -35,6 +35,8 @@ filter.py 中的 filter_samples 函数主要包括以下步骤：
 ## T11T12generator.py
 通过读取噪声样本（T11）和干净样本（T12）的索引，从训练数据中提取对应的样本及其标签，并将其分别保存为 .npy 文件
 
+## merge.py
+将 T11 和 T12 的特征合并为一个特征数据集，同时生成对应的二分类标签，用于训练分类器 
 ## Environment:
 ```
 python==3.6.12
