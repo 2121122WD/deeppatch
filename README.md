@@ -1,7 +1,7 @@
 # NeuroPatch
 Implementations for networks (VGG16, DenseNet121, ResNet101 and MobileNetV2) for CIFAR-10 come from [here](https://github.com/kuangliu/pytorch-cifar).
 
-主要新增代码讲解：
+主要新增实现代码讲解：
 ## filter.py
 filter.py 脚本的主要功能是根据指定深度学习模型的预测结果，将输入样本分为两类：
 - 噪声样本 (T11)：
