@@ -1,7 +1,7 @@
 # NeuroPatch
 Implementations for networks (VGG16, DenseNet121, ResNet101 and MobileNetV2) for CIFAR-10 come from [here](https://github.com/kuangliu/pytorch-cifar).
-
-## 新增代码讲解-filter.py
+新增代码讲解：
+## filter.py
 filter.py 脚本的主要功能是根据指定深度学习模型的预测结果，将输入样本分为两类：
 - 噪声样本 (T11)：
 模型预测错误的样本（即预测标签与真实标签不匹配的样本）。
@@ -31,7 +31,8 @@ filter.py 中的 filter_samples 函数主要包括以下步骤：
 <noise_name><net_name>T11_index.npy
 <noise_name><net_name>T12_index.npy
 ```
-
+## T11T12generator.py
+通过读取噪声样本（T11）和干净样本（T12）的索引，从训练数据中提取对应的样本及其标签，并将其分别保存为 .npy 文件
 Environment:
 ```
 python==3.6.12
