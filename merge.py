@@ -1,4 +1,4 @@
-"""merge the feature of T11 and T12, and generate the dataset for training C. (0-noise 1-clear)"""
+"""将噪声样本（T11）和干净样本（T12）的特征合并为一个特征数据集，同时生成对应的标签"""
 import numpy as np
 import pathlib
 
